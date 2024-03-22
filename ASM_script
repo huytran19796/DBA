@@ -1,3 +1,8 @@
+select 'set newname for datafile ' || file# || ' to new;'
+from v$datafile where file# not in
+(select file# from v$datafile_copy where status = 'A');
+
+-------------------------------------
 COL gname FORM a10
 COL dbname FORM a10
 COL file_type FORM a14
