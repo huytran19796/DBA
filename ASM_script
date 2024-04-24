@@ -101,3 +101,10 @@ SELECT A.DEST_ID,
           GROUP BY THREAD#, DEST_ID, NAME) B
             ON A.THREAD# = B.THREAD#
 ORDER BY A.THREAD#, B.DEST_ID, B.THREAD#;
+-------------------------
+
+set linesize 500
+column target format a15
+column error format a70
+column destination format a15
+select inst_id, target,error,destination from gv$archive_dest;
