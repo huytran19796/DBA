@@ -59,3 +59,45 @@ COL file_type FORM a14
            WHERE gname='&&dg_name'
 GROUP BY gname, dbname, file_type
 ORDER BY gname, dbname, file_type;
+
+
+
+
+
+
+
+
+
+----------------------------
+
+
+
+col NAME for a10 
+
+SELECT A.DEST_ID,
+         A.THREAD#,
+         LOG_ARCHIVED,
+         B.DEST_ID,
+         B.NAME,
+         B.THREAD#,
+         LOG_APPLIED,
+         LOG_ARCHIVED - LOG_APPLIED "LAG SEQUENCE"
+    FROM (  SELECT MAX (SEQUENCE#) LOG_ARCHIVED, THREAD#, DEST_ID
+              FROM GV$ARCHIVED_LOG
+             WHERE DEST_ID = 1 AND ARCHIVED = 'YES'
+          GROUP BY THREAD#, DEST_ID) A
+         INNER JOIN
+         (  SELECT MAX (SEQUENCE#) LOG_APPLIED,
+                   THREAD#,
+                   DEST_ID,
+                   NAME
+              FROM GV$ARCHIVED_LOG
+             WHERE     DEST_ID <> 1
+                   --AND APPLIED = 'YES'
+                   AND (DEST_ID, NAME) IN
+                          (SELECT DISTINCT DEST_ID, DESTINATION   --DB_UNIQUE_NAME
+                             FROM GV$ARCHIVE_DEST
+                            WHERE status = 'VALID' AND TARGET = 'STANDBY')
+          GROUP BY THREAD#, DEST_ID, NAME) B
+            ON A.THREAD# = B.THREAD#
+ORDER BY A.THREAD#, B.DEST_ID, B.THREAD#;
