@@ -1,0 +1,13 @@
+SELECT    'alter user "'
+       || d.username
+       || '" identified by values '''
+       || u.spare4
+       || ''' account unlock;'
+          AS c
+  FROM dba_users d, sys.user$ u
+ WHERE     u.type# = 1
+       AND d.username in
+              (SELECT username
+                 FROM dba_users
+                WHERE username LIKE 'SYS')
+       AND u.user# = d.user_id;
